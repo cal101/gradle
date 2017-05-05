@@ -17,6 +17,7 @@
 package org.gradle.api.initialization;
 
 import org.gradle.api.Incubating;
+import org.gradle.api.artifacts.component.BuildIdentifier;
 import org.gradle.api.tasks.TaskReference;
 import org.gradle.internal.HasInternalProtocol;
 
@@ -32,6 +33,11 @@ public interface IncludedBuild {
      * The name of the included build.
      */
     String getName();
+
+    /**
+     * The identifier for the included build.
+     */
+    BuildIdentifier getBuildIdentifier();
 
     /**
      * The root directory of the included build.

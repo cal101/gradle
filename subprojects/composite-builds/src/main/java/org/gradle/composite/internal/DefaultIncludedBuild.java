@@ -21,9 +21,11 @@ import com.google.common.collect.Lists;
 import org.gradle.BuildResult;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.DependencySubstitutions;
+import org.gradle.api.artifacts.component.BuildIdentifier;
 import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.internal.SettingsInternal;
 import org.gradle.api.internal.artifacts.ImmutableModuleIdentifierFactory;
+import org.gradle.api.internal.artifacts.component.DefaultBuildIdentifier;
 import org.gradle.api.internal.artifacts.ivyservice.dependencysubstitution.DefaultDependencySubstitutions;
 import org.gradle.api.internal.artifacts.ivyservice.dependencysubstitution.DependencySubstitutionsInternal;
 import org.gradle.api.tasks.TaskReference;
@@ -63,6 +65,11 @@ public class DefaultIncludedBuild implements IncludedBuildInternal {
     @Override
     public synchronized String getName() {
         return getLoadedSettings().getRootProject().getName();
+    }
+
+    @Override
+    public BuildIdentifier getBuildIdentifier() {
+        return new DefaultBuildIdentifier(getName());
     }
 
     @Override
