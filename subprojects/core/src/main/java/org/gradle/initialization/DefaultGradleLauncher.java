@@ -41,6 +41,7 @@ import org.gradle.internal.progress.BuildOperationDescriptor;
 import org.gradle.internal.service.scopes.BuildScopeServices;
 import org.gradle.internal.work.WorkerLeaseService;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -171,10 +172,28 @@ public class DefaultGradleLauncher implements GradleLauncher {
 
         buildOperationExecutor.run(new CalculateTaskGraph());
 
-        buildOperationExecutor.runAll(new StartIncludedBuildsBuildOperation());
+        // TODO:DAZ For some reason, using `runAll` with a single operation added is different from `run`, and breaks things
+        // - Different exception message for one of the dependency cycle integration tests
+        // - Worker leases don't seem to be reused correctly
+        final Collection<IncludedBuild> includedBuilds = gradle.getIncludedBuilds();
+        if (includedBuilds.isEmpty()) {
+            // Execute build
+            buildOperationExecutor.run(new ExecuteTasks());
+        } else {
+            // Execute composite build
+            buildOperationExecutor.runAll(new Action<BuildOperationQueue<RunnableBuildOperation>>() {
+                @Override
+                public void execute(BuildOperationQueue<RunnableBuildOperation> buildOperationQueue) {
+                    buildOperationQueue.add(new ExecuteTasks());
 
-        // Execute build
-        buildOperationExecutor.run(new ExecuteTasks());
+                    IncludedBuildTaskGraph includedBuildTaskGraph = gradle.getServices().get(IncludedBuildTaskGraph.class);
+                    for (IncludedBuild includedBuild : includedBuilds) {
+                        RunnableBuildOperation runIncludedBuildBuildOperation = new RunIncludedBuildBuildOperation(includedBuildTaskGraph, includedBuild.getBuildIdentifier());
+                        buildOperationQueue.add(runIncludedBuildBuildOperation);
+                    }
+                }
+            });
+        }
     }
 
     /**
@@ -263,17 +282,6 @@ public class DefaultGradleLauncher implements GradleLauncher {
         @Override
         public BuildOperationDescriptor.Builder description() {
             return BuildOperationDescriptor.displayName(contextualize("Run tasks"));
-        }
-    }
-
-    private class StartIncludedBuildsBuildOperation implements Action<BuildOperationQueue<RunnableBuildOperation>> {
-        @Override
-        public void execute(BuildOperationQueue<RunnableBuildOperation> buildOperationQueue) {
-            IncludedBuildTaskGraph includedBuildTaskGraph = gradle.getServices().get(IncludedBuildTaskGraph.class);
-            for (IncludedBuild includedBuild : gradle.getIncludedBuilds()) {
-                RunnableBuildOperation runIncludedBuildBuildOperation = new RunIncludedBuildBuildOperation(includedBuildTaskGraph, includedBuild.getBuildIdentifier());
-                buildOperationQueue.add(runIncludedBuildBuildOperation);
-            }
         }
     }
 

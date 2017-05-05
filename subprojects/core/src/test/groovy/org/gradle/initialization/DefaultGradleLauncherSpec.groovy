@@ -106,6 +106,7 @@ class DefaultGradleLauncherSpec extends Specification {
         _ * gradleMock.getRootProject() >> expectedRootProject
         _ * gradleMock.getDefaultProject() >> expectedCurrentProject
         _ * gradleMock.getTaskGraph() >> taskExecuterMock
+        _ * gradleMock.getIncludedBuilds() >> []
         _ * taskExecuterMock.getRequestedTasks() >> [Mock(Task)]
         _ * taskExecuterMock.getFilteredTasks() >> [Mock(Task)]
         _ * gradleMock.getStartParameter() >> expectedStartParams
