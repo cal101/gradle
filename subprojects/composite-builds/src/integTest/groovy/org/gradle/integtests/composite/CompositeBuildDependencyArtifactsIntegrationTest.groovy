@@ -562,8 +562,7 @@ class CompositeBuildDependencyArtifactsIntegrationTest extends AbstractComposite
 
         then:
         failure
-            .assertHasDescription("Failed to execute tasks for build 'buildB'")
-            .assertHasCause("Failed to execute tasks for build 'buildC'")
+            .assertHasDescription("Failed to execute tasks for build 'buildC'")
             .assertHasCause("Execution failed for task ':buildC:jar'")
             .assertHasCause("jar task failed")
     }

@@ -19,6 +19,7 @@ package org.gradle.integtests.composite
 import org.gradle.integtests.fixtures.build.BuildTestFile
 import org.gradle.integtests.fixtures.resolve.ResolveTestFixture
 import org.gradle.test.fixtures.maven.MavenModule
+import org.gradle.util.Matchers
 
 /**
  * Tests for resolving dependency cycles in a composite build.
@@ -86,10 +87,11 @@ class CompositeBuildDependencyCycleIntegrationTest extends AbstractCompositeBuil
 
         then:
         failure
-            .assertHasDescription("Failed to execute tasks for build 'buildB'")
-            .assertHasCause("Failed to execute tasks for build 'buildC'")
-            .assertHasCause("Could not determine the dependencies of task ':buildC:compileJava'.")
-            .assertHasCause("Included build dependency cycle: build 'buildB' -> build 'buildC' -> build 'buildB'")
+            .assertHasDescription("Failed to execute tasks for build")
+            .assertHasCause("Could not determine the dependencies of task")
+            .assertHasCause("Included build dependency cycle:")
+            .assertThatCause(Matchers.containsText("build 'buildC' -> build 'buildB'"))
+            .assertThatCause(Matchers.containsText("build 'buildB' -> build 'buildC'"))
     }
 
     def "indirect dependency cycle between included builds"() {
@@ -133,14 +135,12 @@ class CompositeBuildDependencyCycleIntegrationTest extends AbstractCompositeBuil
 
         then:
         failure
-            .assertHasDescription("Failed to execute tasks for build 'buildB'")
-            .assertHasCause("Failed to execute tasks for build 'buildC'")
-            .assertHasCause("Included build dependency cycle: build 'buildB' -> build 'buildC' -> build 'buildB'")
+            .assertHasDescription("Failed to execute tasks for build")
 
-        // TODO:DAZ This message is technically correct, but not ideal.
-        // Since 'buildB' is an API dependency of 'buildD', 'buildC' actually does require 'buildB',
-        // but this message is probably not what a user would expect.
-        // A more helpful cycle report would be something like:
+            // TODO:DAZ Does not report the correct full dependency cycle
+            .assertHasCause("Included build dependency cycle:")
+
+        // A helpful cycle report would be something like:
         //    "Included build dependency cycle: build 'buildB' -> build 'buildC' -> build 'buildD' -> build 'buildB'"
     }
 
@@ -179,10 +179,9 @@ project(':b1') {
 
         then:
         failure
-            .assertHasDescription("Failed to execute tasks for build 'buildB'")
-            .assertHasCause("Failed to execute tasks for build 'buildC'")
-            .assertHasCause("Could not determine the dependencies of task ':buildC:compileJava'.")
-            .assertHasCause("Included build dependency cycle: build 'buildB' -> build 'buildC' -> build 'buildB'")
+            .assertHasCause("Included build dependency cycle:")
+            .assertThatCause(Matchers.containsText("build 'buildC' -> build 'buildB'"))
+            .assertThatCause(Matchers.containsText("build 'buildB' -> build 'buildC'"))
     }
 
     def "compile-only dependency cycle between included builds"() {
@@ -217,10 +216,11 @@ project(':b1') {
 
         then:
         failure
-            .assertHasDescription("Failed to execute tasks for build 'buildB'")
-            .assertHasCause("Failed to execute tasks for build 'buildC'")
-            .assertHasCause("Could not determine the dependencies of task ':buildC:compileJava'.")
-            .assertHasCause("Included build dependency cycle: build 'buildB' -> build 'buildC' -> build 'buildB'")
+            .assertHasDescription("Failed to execute tasks for build")
+            .assertHasCause("Could not determine the dependencies of task")
+            .assertHasCause("Included build dependency cycle:")
+            .assertThatCause(Matchers.containsText("build 'buildC' -> build 'buildB'"))
+            .assertThatCause(Matchers.containsText("build 'buildB' -> build 'buildC'"))
     }
 
     def "dependency cycle between subprojects in an included multiproject build"() {

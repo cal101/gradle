@@ -17,6 +17,7 @@
 package org.gradle.integtests.composite
 
 import org.gradle.integtests.fixtures.build.BuildTestFile
+import org.gradle.util.Matchers
 
 /**
  * Tests for plugin development scenarios within a composite build.
@@ -128,10 +129,10 @@ class CompositeBuildPluginDevelopmentIntegrationTest extends AbstractCompositeBu
         then:
         failure
             .assertHasDescription("Failed to build artifacts for build 'pluginC'")
-            .assertHasCause("Failed to execute tasks for build 'buildB'")
-            .assertHasCause("Failed to execute tasks for build 'buildD'")
             .assertHasCause("Could not determine the dependencies of task ':buildD:compileJava'.")
-            .assertHasCause("Included build dependency cycle: build 'buildB' -> build 'buildD' -> build 'buildB'")
+            .assertHasCause("Included build dependency cycle:")
+            .assertThatCause(Matchers.containsText("build 'buildB' -> build 'buildD'"))
+            .assertThatCause(Matchers.containsText("build 'buildD' -> build 'buildB'"))
     }
 
     def applyPlugin(BuildTestFile build) {
