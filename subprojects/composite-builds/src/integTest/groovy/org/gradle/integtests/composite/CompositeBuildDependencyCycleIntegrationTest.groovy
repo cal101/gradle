@@ -184,7 +184,12 @@ project(':b1') {
     def "compile-only dependency cycle between included builds"() {
         given:
         dependency "org.test:buildB:1.0"
-        dependency buildB, "org.test:buildC:1.0"
+        buildB.buildFile << """
+            apply plugin: 'java'
+            dependencies {
+                compileOnly "org.test:buildC:1.0"
+            }
+"""
         buildC.buildFile << """
             apply plugin: 'java'
             dependencies {
@@ -200,9 +205,6 @@ project(':b1') {
         checkGraph {
             edge("org.test:buildB:1.0", "project :buildB:", "org.test:buildB:1.0") {
                 compositeSubstitute()
-                edge("org.test:buildC:1.0", "project :buildC:", "org.test:buildC:1.0") {
-                    compositeSubstitute()
-                }
             }
         }
 
