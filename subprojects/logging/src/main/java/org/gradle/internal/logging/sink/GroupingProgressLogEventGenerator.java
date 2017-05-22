@@ -106,13 +106,14 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
         buildOpIdHierarchy.remove(buildOpId);
         OperationGroup group = operationsInProgress.remove(buildOpId);
         if (group != null) {
-            group.flushOutput(completeEvent.getStatus());
+            group.setStatus(completeEvent.getStatus());
+            group.flushOutput();
         }
     }
 
     private void onEnd(EndOutputEvent event) {
         for (OperationGroup group : operationsInProgress.values()) {
-            group.flushOutput("");
+            group.flushOutput();
         }
         listener.onOutput(event);
         buildOpIdHierarchy.clear();
@@ -142,6 +143,7 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
         private final String category;
         private final String loggingHeader;
         private final long startTime;
+        private String status;
 
         private List<RenderableOutputEvent> bufferedLogs = new ArrayList<RenderableOutputEvent>();
 
@@ -164,7 +166,7 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
             bufferedLogs.add(output);
         }
 
-        void flushOutput(String status) {
+        void flushOutput() {
             if (alwaysRenderHeaders || !bufferedLogs.isEmpty()) {
                 // Visually indicate group by adding surrounding lines
                 if (needsHeader) {
@@ -183,6 +185,10 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
                 }
                 lastRenderedBuildOpId = buildOpIdentifier;
             }
+        }
+
+        private void setStatus(String status) {
+            this.status = status;
         }
     }
 }

@@ -16,6 +16,7 @@
 package org.gradle.internal.logging.format;
 
 import com.google.common.collect.Lists;
+import org.gradle.api.Nullable;
 import org.gradle.internal.logging.events.StyledTextOutputEvent;
 import org.gradle.internal.logging.text.StyledTextOutput;
 
@@ -23,7 +24,11 @@ import java.util.List;
 
 public class PrettyPrefixedLogHeaderFormatter implements LogHeaderFormatter {
     @Override
-    public List<StyledTextOutputEvent.Span> format(String message, String status) {
-        return Lists.newArrayList(new StyledTextOutputEvent.Span(StyledTextOutput.Style.Header, "> " + message), new StyledTextOutputEvent.Span(EOL));
+    public List<StyledTextOutputEvent.Span> format(@Nullable String message, @Nullable String statusIgnored) {
+        if (message != null) {
+            return Lists.newArrayList(new StyledTextOutputEvent.Span(StyledTextOutput.Style.Header, "> " + message), new StyledTextOutputEvent.Span(EOL));
+        } else {
+            return Lists.newArrayList();
+        }
     }
 }

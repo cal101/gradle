@@ -25,6 +25,7 @@ public class StatusPostfixLogHeaderFormatter implements LogHeaderFormatter {
     @Override
     public List<StyledTextOutputEvent.Span> format(String message, String status) {
         return Lists.newArrayList(new StyledTextOutputEvent.Span(message + ' '),
-            new StyledTextOutputEvent.Span(StyledTextOutput.Style.ProgressStatus, status));
+            new StyledTextOutputEvent.Span(StyledTextOutput.Style.ProgressStatus, status),
+            new StyledTextOutputEvent.Span(EOL));
     }
 }

@@ -237,7 +237,7 @@ class OutputEventRendererTest extends OutputSpecification {
         renderer.onOutput(complete('status'))
 
         then:
-        outputs.stdOut.readLines() == ['description status']
+        outputs.stdOut.readLines() == ['description status', '']
         outputs.stdErr == ''
     }
 
