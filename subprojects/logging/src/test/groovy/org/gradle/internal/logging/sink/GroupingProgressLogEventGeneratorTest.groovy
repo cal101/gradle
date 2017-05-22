@@ -109,7 +109,7 @@ class GroupingProgressLogEventGeneratorTest extends OutputSpecification {
 
         when: listener.onOutput([taskStartEvent, warningMessage, endBuildEvent])
 
-        then: 1 * logHeaderFormatter.format(taskStartEvent.description, "") >> { [new StyledTextOutputEvent.Span("Header $taskStartEvent.description")] }
+        then: 1 * logHeaderFormatter.format(taskStartEvent.description, null) >> { [new StyledTextOutputEvent.Span("Header $taskStartEvent.description")] }
         then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Normal>Header $taskStartEvent.description</Normal>".toString() })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[WARN] [category] Warning: some deprecation or something" })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] " })

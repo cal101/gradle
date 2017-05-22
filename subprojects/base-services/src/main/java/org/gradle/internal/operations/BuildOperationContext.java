@@ -27,4 +27,6 @@ public interface BuildOperationContext {
     void failed(@Nullable Throwable failure);
 
     void setResult(Object result);
+
+    void setStatus(String outcome);
 }
