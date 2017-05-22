@@ -21,9 +21,10 @@ import org.gradle.internal.logging.text.StyledTextOutput;
 
 import java.util.List;
 
-public class PrettyPrefixedLogHeaderFormatter implements LogHeaderFormatter {
+public class StatusPostfixLogHeaderFormatter implements LogHeaderFormatter {
     @Override
     public List<StyledTextOutputEvent.Span> format(String message, String status) {
-        return Lists.newArrayList(new StyledTextOutputEvent.Span(StyledTextOutput.Style.Header, "> " + message), new StyledTextOutputEvent.Span(EOL));
+        return Lists.newArrayList(new StyledTextOutputEvent.Span(message + ' '),
+            new StyledTextOutputEvent.Span(StyledTextOutput.Style.ProgressStatus, status));
     }
 }

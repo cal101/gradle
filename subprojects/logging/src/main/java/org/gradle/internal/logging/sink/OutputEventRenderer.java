@@ -225,7 +225,7 @@ public class OutputEventRenderer implements OutputEventListener, LoggingRouter {
             new BuildStatusRenderer(
                 new WorkInProgressRenderer(
                         new BuildLogLevelFilterRenderer(
-                            new GroupingProgressLogEventGenerator(new StyledTextOutputBackedRenderer(console.getBuildOutputArea()), new PrettyPrefixedLogHeaderFormatter())),
+                            new GroupingProgressLogEventGenerator(new StyledTextOutputBackedRenderer(console.getBuildOutputArea()), new PrettyPrefixedLogHeaderFormatter(), false)),
                     console.getBuildProgressArea(), new DefaultWorkInProgressFormatter(consoleMetaData), new ConsoleLayoutCalculator(consoleMetaData)),
                 console.getStatusBar(), console, consoleMetaData, timeProvider),
             timeProvider);
