@@ -24,7 +24,8 @@ import java.util.List;
 
 public class PrettyPrefixedLogHeaderFormatter implements LogHeaderFormatter {
     @Override
-    public List<StyledTextOutputEvent.Span> format(@Nullable String message, @Nullable String statusIgnored) {
+    public List<StyledTextOutputEvent.Span> format(@Nullable String header, String description, @Nullable String shortDescription, @Nullable String status) {
+        final String message = header != null ? header : description;
         if (message != null) {
             return Lists.newArrayList(new StyledTextOutputEvent.Span(StyledTextOutput.Style.Header, "> " + message), new StyledTextOutputEvent.Span(EOL));
         } else {

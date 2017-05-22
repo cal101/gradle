@@ -82,8 +82,7 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
 
             // Create a new group for tasks or configure project
             if (isGroupedOperation(startEvent.getBuildOperationCategory())) {
-                String header = startEvent.getLoggingHeader() != null ? startEvent.getLoggingHeader() : startEvent.getDescription();
-                operationsInProgress.put(buildOpId, new OperationGroup(startEvent.getCategory(), header, startEvent.getTimestamp(), startEvent.getBuildOperationId()));
+                operationsInProgress.put(buildOpId, new OperationGroup(startEvent.getCategory(), startEvent.getLoggingHeader(), startEvent.getDescription(), startEvent.getShortDescription(), startEvent.getTimestamp(), startEvent.getBuildOperationId()));
             }
         }
     }
@@ -142,14 +141,18 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
         private final Object buildOpIdentifier;
         private final String category;
         private final String loggingHeader;
+        private final String description;
+        private final String shortDescription;
         private final long startTime;
         private String status;
 
         private List<RenderableOutputEvent> bufferedLogs = new ArrayList<RenderableOutputEvent>();
 
-        private OperationGroup(String category, @Nullable String loggingHeader, long startTime, Object buildOpIdentifier) {
+        private OperationGroup(String category, @Nullable String loggingHeader, String description, @Nullable String shortDescription, long startTime, Object buildOpIdentifier) {
             this.category = category;
             this.loggingHeader = loggingHeader;
+            this.description = description;
+            this.shortDescription = shortDescription;
             this.startTime = startTime;
             this.buildOpIdentifier = buildOpIdentifier;
         }
@@ -158,8 +161,8 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
             return new LogEvent(startTime, category, null, "", null);
         }
 
-        StyledTextOutputEvent header(final String message, final String status) {
-            return new StyledTextOutputEvent(startTime, category, null, buildOpIdentifier, headerFormatter.format(message, status));
+        StyledTextOutputEvent header() {
+            return new StyledTextOutputEvent(startTime, category, null, buildOpIdentifier, headerFormatter.format(loggingHeader, description, shortDescription, status));
         }
 
         void bufferOutput(RenderableOutputEvent output) {
@@ -173,7 +176,7 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
                     listener.onOutput(spacerLine());
                     needsHeader = false;
                 }
-                listener.onOutput(header(loggingHeader, status));
+                listener.onOutput(header());
 
                 for (RenderableOutputEvent renderableEvent : bufferedLogs) {
                     listener.onOutput(renderableEvent);

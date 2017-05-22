@@ -16,6 +16,7 @@
 package org.gradle.internal.logging.format;
 
 import com.google.common.collect.Lists;
+import org.gradle.api.Nullable;
 import org.gradle.internal.logging.events.StyledTextOutputEvent;
 import org.gradle.internal.logging.text.StyledTextOutput;
 
@@ -23,7 +24,16 @@ import java.util.List;
 
 public class StatusPostfixLogHeaderFormatter implements LogHeaderFormatter {
     @Override
-    public List<StyledTextOutputEvent.Span> format(String message, String status) {
+    public List<StyledTextOutputEvent.Span> format(@Nullable String header, String description, @Nullable String shortDescription, @Nullable String status) {
+        final String message;
+        if (header != null) {
+            message = header;
+        } else if (shortDescription != null) {
+            message = shortDescription;
+        } else {
+            message = description;
+        }
+
         return Lists.newArrayList(new StyledTextOutputEvent.Span(message + ' '),
             new StyledTextOutputEvent.Span(StyledTextOutput.Style.ProgressStatus, status),
             new StyledTextOutputEvent.Span(EOL));
