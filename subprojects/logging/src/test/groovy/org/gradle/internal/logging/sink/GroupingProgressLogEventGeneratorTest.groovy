@@ -23,14 +23,17 @@ import org.gradle.internal.logging.events.OperationIdentifier
 import org.gradle.internal.logging.events.OutputEventListener
 import org.gradle.internal.logging.events.ProgressCompleteEvent
 import org.gradle.internal.logging.events.ProgressStartEvent
+import org.gradle.internal.logging.events.StyledTextOutputEvent
+import org.gradle.internal.logging.format.LogHeaderFormatter
 import org.gradle.internal.progress.BuildOperationCategory
 import org.gradle.util.MockTimeProvider
 import spock.lang.Subject
 
 class GroupingProgressLogEventGeneratorTest extends OutputSpecification {
     private final OutputEventListener downstreamListener = Mock(OutputEventListener)
+    def logHeaderFormatter = Mock(LogHeaderFormatter)
     def timeProvider = new MockTimeProvider()
-    @Subject listener = new GroupingProgressLogEventGenerator(downstreamListener)
+    @Subject listener = new GroupingProgressLogEventGenerator(downstreamListener, logHeaderFormatter)
 
     def "forwards logs with no group"() {
         given:
@@ -53,7 +56,8 @@ class GroupingProgressLogEventGeneratorTest extends OutputSpecification {
 
         when: listener.onOutput(new ProgressCompleteEvent(taskStartEvent.progressOperationId, tenAm, null))
 
-        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Header>> Execute :foo</Header><Normal>${GroupingProgressLogEventGenerator.EOL}</Normal>".toString() })
+        then: 1 * logHeaderFormatter.format(taskStartEvent.description) >> { [new StyledTextOutputEvent.Span("Header $taskStartEvent.description")] }
+        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Normal>Header $taskStartEvent.description</Normal>".toString() })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[WARN] [category] Warning: some deprecation or something" })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] " })
         then: 0 * _
@@ -73,7 +77,8 @@ class GroupingProgressLogEventGeneratorTest extends OutputSpecification {
 
         when: listener.onOutput(taskCompleteEvent)
 
-        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Header>> Execute :foo</Header><Normal>${GroupingProgressLogEventGenerator.EOL}</Normal>".toString() })
+        then: 1 * logHeaderFormatter.format(taskStartEvent.description) >> { [new StyledTextOutputEvent.Span("Header $taskStartEvent.description")] }
+        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Normal>Header $taskStartEvent.description</Normal>".toString() })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[WARN] [category] Child task log message" })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] " })
         then: 0 * _
@@ -87,7 +92,8 @@ class GroupingProgressLogEventGeneratorTest extends OutputSpecification {
 
         when: listener.onOutput([taskStartEvent, warningMessage, endBuildEvent])
 
-        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Header>> Execute :foo</Header><Normal>${GroupingProgressLogEventGenerator.EOL}</Normal>".toString() })
+        then: 1 * logHeaderFormatter.format(taskStartEvent.description) >> { [new StyledTextOutputEvent.Span("Header $taskStartEvent.description")] }
+        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Normal>Header $taskStartEvent.description</Normal>".toString() })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[WARN] [category] Warning: some deprecation or something" })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] " })
         then: 1 * downstreamListener.onOutput(endBuildEvent)
@@ -105,10 +111,12 @@ class GroupingProgressLogEventGeneratorTest extends OutputSpecification {
 
         when: listener.onOutput([taskAStartEvent, taskBStartEvent, taskAOutput, taskBOutput, taskBCompleteEvent, taskACompleteEvent])
 
-        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Header>> Execute :b</Header><Normal>${GroupingProgressLogEventGenerator.EOL}</Normal>".toString() })
+        then: 1 * logHeaderFormatter.format(taskBStartEvent.description) >> { [new StyledTextOutputEvent.Span("Header $taskBStartEvent.description")] }
+        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Normal>Header $taskBStartEvent.description</Normal>".toString() })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[WARN] [category] message for task b" })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] " })
-        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Header>> Execute :a</Header><Normal>${GroupingProgressLogEventGenerator.EOL}</Normal>".toString() })
+        then: 1 * logHeaderFormatter.format(taskAStartEvent.description) >> { [new StyledTextOutputEvent.Span("Header $taskAStartEvent.description")] }
+        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Normal>Header $taskAStartEvent.description</Normal>".toString() })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[WARN] [category] message for task a" })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] " })
         then: 0 * _

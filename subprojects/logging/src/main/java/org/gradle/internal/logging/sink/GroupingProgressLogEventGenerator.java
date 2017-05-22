@@ -16,7 +16,6 @@
 
 package org.gradle.internal.logging.sink;
 
-import com.google.common.collect.Lists;
 import org.gradle.api.Nullable;
 import org.gradle.internal.SystemProperties;
 import org.gradle.internal.logging.events.BatchOutputEventListener;
@@ -30,7 +29,7 @@ import org.gradle.internal.logging.events.ProgressEvent;
 import org.gradle.internal.logging.events.ProgressStartEvent;
 import org.gradle.internal.logging.events.RenderableOutputEvent;
 import org.gradle.internal.logging.events.StyledTextOutputEvent;
-import org.gradle.internal.logging.text.StyledTextOutput;
+import org.gradle.internal.logging.format.LogHeaderFormatter;
 import org.gradle.internal.progress.BuildOperationCategory;
 
 import java.util.ArrayList;
@@ -47,6 +46,7 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
     static final String EOL = SystemProperties.getInstance().getLineSeparator();
 
     private final OutputEventListener listener;
+    private final LogHeaderFormatter headerFormatter;
 
     // Maintain a hierarchy of all build operation ids — heads up: this is a *forest*, not just 1 tree
     private final Map<Object, Object> buildOpIdHierarchy = new HashMap<Object, Object>();
@@ -56,8 +56,9 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
     private Object lastRenderedBuildOpId;
     private boolean needsHeader;
 
-    public GroupingProgressLogEventGenerator(OutputEventListener listener) {
+    public GroupingProgressLogEventGenerator(OutputEventListener listener, LogHeaderFormatter headerFormatter) {
         this.listener = listener;
+        this.headerFormatter = headerFormatter;
     }
 
     public void onOutput(OutputEvent event) {
@@ -157,8 +158,7 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
         }
 
         StyledTextOutputEvent header(final String message) {
-            List<StyledTextOutputEvent.Span> spans = Lists.newArrayList(new StyledTextOutputEvent.Span(StyledTextOutput.Style.Header, "> " + message), new StyledTextOutputEvent.Span(EOL));
-            return new StyledTextOutputEvent(startTime, category, null, buildOpIdentifier, spans);
+            return new StyledTextOutputEvent(startTime, category, null, buildOpIdentifier, headerFormatter.format(message));
         }
 
         void bufferOutput(RenderableOutputEvent output) {
