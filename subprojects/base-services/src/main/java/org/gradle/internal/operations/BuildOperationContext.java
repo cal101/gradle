@@ -28,5 +28,11 @@ public interface BuildOperationContext {
 
     void setResult(Object result);
 
-    void setStatus(String outcome);
+    /**
+     * Record a status or outcome for given build operation.
+     *
+     * @param status operation status
+     * @since 4.0
+     */
+    void setStatus(String status);
 }
