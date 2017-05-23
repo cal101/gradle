@@ -61,7 +61,6 @@ class GroupingProgressLogEventGeneratorTest extends OutputSpecification {
         then: 1 * logHeaderFormatter.format(taskStartEvent.loggingHeader, taskStartEvent.description, taskStartEvent.shortDescription, taskCompleteEvent.status) >> { [new StyledTextOutputEvent.Span("Header $taskStartEvent.description")] }
         then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Normal>Header $taskStartEvent.description</Normal>".toString() })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[WARN] [category] Warning: some deprecation or something" })
-        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] " })
         then: 0 * _
     }
 
@@ -76,7 +75,6 @@ class GroupingProgressLogEventGeneratorTest extends OutputSpecification {
             [new StyledTextOutputEvent.Span(taskStartEvent.description + ' '), new StyledTextOutputEvent.Span(StyledTextOutput.Style.ProgressStatus, taskCompleteEvent.status)]
         }
         then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Normal>$taskStartEvent.description </Normal><ProgressStatus>$taskCompleteEvent.status</ProgressStatus>".toString() })
-        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] " })
         then: 0 * _
     }
 
@@ -97,7 +95,6 @@ class GroupingProgressLogEventGeneratorTest extends OutputSpecification {
         then: 1 * logHeaderFormatter.format(taskStartEvent.loggingHeader, taskStartEvent.description, taskStartEvent.shortDescription, taskCompleteEvent.status) >> { [new StyledTextOutputEvent.Span("Header $taskStartEvent.description")] }
         then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Normal>Header $taskStartEvent.description</Normal>".toString() })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[WARN] [category] Child task log message" })
-        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] " })
         then: 0 * _
     }
 
@@ -112,7 +109,6 @@ class GroupingProgressLogEventGeneratorTest extends OutputSpecification {
         then: 1 * logHeaderFormatter.format(taskStartEvent.loggingHeader, taskStartEvent.description, taskStartEvent.shortDescription, null) >> { [new StyledTextOutputEvent.Span("Header $taskStartEvent.description")] }
         then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Normal>Header $taskStartEvent.description</Normal>".toString() })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[WARN] [category] Warning: some deprecation or something" })
-        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] " })
         then: 1 * downstreamListener.onOutput(endBuildEvent)
         then: 0 * _
     }
@@ -131,11 +127,9 @@ class GroupingProgressLogEventGeneratorTest extends OutputSpecification {
         then: 1 * logHeaderFormatter.format(taskBStartEvent.loggingHeader, taskBStartEvent.description, taskBStartEvent.shortDescription, taskBCompleteEvent.status) >> { [new StyledTextOutputEvent.Span("Header $taskBStartEvent.description")] }
         then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Normal>Header $taskBStartEvent.description</Normal>".toString() })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[WARN] [category] message for task b" })
-        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] " })
         then: 1 * logHeaderFormatter.format(taskAStartEvent.loggingHeader, taskAStartEvent.description, taskAStartEvent.shortDescription, taskACompleteEvent.status) >> { [new StyledTextOutputEvent.Span("Header $taskAStartEvent.description")] }
         then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] <Normal>Header $taskAStartEvent.description</Normal>".toString() })
         then: 1 * downstreamListener.onOutput({ it.toString() == "[WARN] [category] message for task a" })
-        then: 1 * downstreamListener.onOutput({ it.toString() == "[null] [category] " })
         then: 0 * _
     }
 }

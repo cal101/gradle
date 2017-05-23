@@ -52,7 +52,6 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
     private final Map<OperationIdentifier, Object> progressToBuildOpIdMap = new HashMap<OperationIdentifier, Object>();
 
     private Object lastRenderedBuildOpId;
-    private boolean needsHeader;
 
     public GroupingProgressLogEventGenerator(OutputEventListener listener, LogHeaderFormatter headerFormatter, boolean alwaysRenderTasks) {
         this.listener = listener;
@@ -121,8 +120,12 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
     }
 
     private void onUngroupedOutput(RenderableOutputEvent event) {
-        needsHeader = true;
+        // Visually separate grouped output from ungrouped
+        if (lastRenderedBuildOpId != null) {
+            listener.onOutput(new LogEvent(event.getTimestamp(), event.getCategory(), null, "", null));
+        }
         listener.onOutput(event);
+        lastRenderedBuildOpId = null;
     }
 
     // Return the id of the operation/group, checking up the build operation hierarchy
@@ -160,10 +163,6 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
             this.buildOperationCategory = buildOperationCategory;
         }
 
-        private LogEvent spacerLine() {
-            return new LogEvent(startTime, category, null, "", null);
-        }
-
         StyledTextOutputEvent header() {
             return new StyledTextOutputEvent(startTime, category, null, buildOpIdentifier, headerFormatter.format(loggingHeader, description, shortDescription, status));
         }
@@ -174,21 +173,14 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
 
         void flushOutput() {
             if (shouldForward()) {
-                // Visually indicate group by adding surrounding lines
-                if (needsHeader) {
-                    listener.onOutput(spacerLine());
-                    needsHeader = false;
+                if (!buildOpIdentifier.equals(lastRenderedBuildOpId)) {
+                    listener.onOutput(header());
                 }
-                listener.onOutput(header());
 
                 for (RenderableOutputEvent renderableEvent : bufferedLogs) {
                     listener.onOutput(renderableEvent);
                 }
 
-                // Visually indicate a new group by adding a line if not appending to last rendered group
-                if (!buildOpIdentifier.equals(lastRenderedBuildOpId)) {
-                    listener.onOutput(spacerLine());
-                }
                 lastRenderedBuildOpId = buildOpIdentifier;
             }
         }

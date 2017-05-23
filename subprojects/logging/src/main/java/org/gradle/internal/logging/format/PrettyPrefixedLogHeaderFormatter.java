@@ -27,7 +27,8 @@ public class PrettyPrefixedLogHeaderFormatter implements LogHeaderFormatter {
     public List<StyledTextOutputEvent.Span> format(@Nullable String header, String description, @Nullable String shortDescription, @Nullable String status) {
         final String message = header != null ? header : description;
         if (message != null) {
-            return Lists.newArrayList(new StyledTextOutputEvent.Span(StyledTextOutput.Style.Header, "> " + message), new StyledTextOutputEvent.Span(EOL));
+            // Visually indicate group by adding surrounding lines
+            return Lists.newArrayList(new StyledTextOutputEvent.Span(EOL), new StyledTextOutputEvent.Span(StyledTextOutput.Style.Header, "> " + message), new StyledTextOutputEvent.Span(EOL));
         } else {
             return Lists.newArrayList();
         }
