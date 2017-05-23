@@ -237,7 +237,7 @@ class OutputEventRendererTest extends OutputSpecification {
         renderer.onOutput(complete('status'))
 
         then:
-        outputs.stdOut.readLines() == ['description status', '']
+        outputs.stdOut.readLines() == ['description status']
         outputs.stdErr == ''
     }
 
@@ -265,7 +265,7 @@ class OutputEventRendererTest extends OutputSpecification {
         renderer.restore(snapshot) // close console to flush
 
         then:
-        console.buildOutputArea.toString().readLines() == ['{header}> description{normal}', 'info', '{error}error', '{normal}']
+        console.buildOutputArea.toString().readLines() == ['', '{header}> description{normal}', 'info', '{error}error', '{normal}']
     }
 
     def rendersLogEventsWhenOnlyStdOutIsConsole() {
@@ -280,7 +280,7 @@ class OutputEventRendererTest extends OutputSpecification {
         renderer.restore(snapshot) // close console to flush
 
         then:
-        console.buildOutputArea.toString().readLines() == ['{header}> description{normal}', 'info', '']
+        console.buildOutputArea.toString().readLines() == ['', '{header}> description{normal}', 'info']
     }
 
     def rendersLogEventsWhenOnlyStdErrIsConsole() {
