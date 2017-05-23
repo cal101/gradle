@@ -44,7 +44,7 @@ import java.util.Map;
 public class GroupingProgressLogEventGenerator extends BatchOutputEventListener {
     private final OutputEventListener listener;
     private final LogHeaderFormatter headerFormatter;
-    private final boolean alwaysRenderHeaders;
+    private final boolean alwaysRenderTasks;
 
     // Maintain a hierarchy of all build operation ids — heads up: this is a *forest*, not just 1 tree
     private final Map<Object, Object> buildOpIdHierarchy = new HashMap<Object, Object>();
@@ -54,10 +54,10 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
     private Object lastRenderedBuildOpId;
     private boolean needsHeader;
 
-    public GroupingProgressLogEventGenerator(OutputEventListener listener, LogHeaderFormatter headerFormatter, boolean alwaysRenderHeaders) {
+    public GroupingProgressLogEventGenerator(OutputEventListener listener, LogHeaderFormatter headerFormatter, boolean alwaysRenderTasks) {
         this.listener = listener;
         this.headerFormatter = headerFormatter;
-        this.alwaysRenderHeaders = alwaysRenderHeaders;
+        this.alwaysRenderTasks = alwaysRenderTasks;
     }
 
     public void onOutput(OutputEvent event) {
@@ -82,7 +82,7 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
 
             // Create a new group for tasks or configure project
             if (isGroupedOperation(startEvent.getBuildOperationCategory())) {
-                operationsInProgress.put(buildOpId, new OperationGroup(startEvent.getCategory(), startEvent.getLoggingHeader(), startEvent.getDescription(), startEvent.getShortDescription(), startEvent.getTimestamp(), startEvent.getBuildOperationId()));
+                operationsInProgress.put(buildOpId, new OperationGroup(startEvent.getCategory(), startEvent.getLoggingHeader(), startEvent.getDescription(), startEvent.getShortDescription(), startEvent.getTimestamp(), startEvent.getBuildOperationId(), startEvent.getBuildOperationCategory()));
             }
         }
     }
@@ -138,23 +138,26 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
     }
 
     private class OperationGroup {
-        private final Object buildOpIdentifier;
         private final String category;
         private final String loggingHeader;
         private final String description;
         private final String shortDescription;
         private final long startTime;
+        private final Object buildOpIdentifier;
+        private final BuildOperationCategory buildOperationCategory;
+
         private String status;
 
         private List<RenderableOutputEvent> bufferedLogs = new ArrayList<RenderableOutputEvent>();
 
-        private OperationGroup(String category, @Nullable String loggingHeader, String description, @Nullable String shortDescription, long startTime, Object buildOpIdentifier) {
+        private OperationGroup(String category, @Nullable String loggingHeader, String description, @Nullable String shortDescription, long startTime, Object buildOpIdentifier, BuildOperationCategory buildOperationCategory) {
             this.category = category;
             this.loggingHeader = loggingHeader;
             this.description = description;
             this.shortDescription = shortDescription;
             this.startTime = startTime;
             this.buildOpIdentifier = buildOpIdentifier;
+            this.buildOperationCategory = buildOperationCategory;
         }
 
         private LogEvent spacerLine() {
@@ -170,7 +173,7 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
         }
 
         void flushOutput() {
-            if (alwaysRenderHeaders || !bufferedLogs.isEmpty()) {
+            if (shouldForward()) {
                 // Visually indicate group by adding surrounding lines
                 if (needsHeader) {
                     listener.onOutput(spacerLine());
@@ -192,6 +195,10 @@ public class GroupingProgressLogEventGenerator extends BatchOutputEventListener 
 
         private void setStatus(String status) {
             this.status = status;
+        }
+
+        private boolean shouldForward() {
+            return !bufferedLogs.isEmpty() || (alwaysRenderTasks && buildOperationCategory == BuildOperationCategory.TASK);
         }
     }
 }

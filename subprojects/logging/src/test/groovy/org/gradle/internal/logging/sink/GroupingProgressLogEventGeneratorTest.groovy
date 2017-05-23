@@ -65,7 +65,7 @@ class GroupingProgressLogEventGeneratorTest extends OutputSpecification {
         then: 0 * _
     }
 
-    def "allows render of headers with no content"() {
+    def "allows render of task headers when configured"() {
         given:
         def taskStartEvent = new ProgressStartEvent(new OperationIdentifier(-3L), new OperationIdentifier(-4L), tenAm, CATEGORY, "Execute :foo", ":foo", null, null, new OperationIdentifier(2L), null, BuildOperationCategory.TASK)
         def taskCompleteEvent = new ProgressCompleteEvent(taskStartEvent.progressOperationId, tenAm, "STATUS")
