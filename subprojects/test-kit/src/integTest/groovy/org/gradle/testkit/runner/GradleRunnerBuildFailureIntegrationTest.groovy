@@ -91,17 +91,18 @@ class GradleRunnerBuildFailureIntegrationTest extends BaseGradleRunnerIntegratio
 
         then:
         def t = thrown UnexpectedBuildSuccess
-        def expectedOutput = """:helloWorld
+        def expectedOutput = """:helloWorld 
 Hello world!
 
 BUILD SUCCESSFUL"""
         def expectedMessage = """Unexpected build execution success in ${testDirectory.canonicalPath} with arguments ${runner.arguments}
 
-Output:
-$expectedOutput"""
+Output:"""
 
-        normalize(t.message).startsWith(expectedMessage)
-        normalize(t.buildResult.output).startsWith(expectedOutput)
+        def normalizedMessage = normalize(t.message)
+        normalizedMessage.startsWith(expectedMessage)
+        normalizedMessage.contains(expectedOutput)
+        normalize(t.buildResult.output.trim()).startsWith(expectedOutput)
         t.buildResult.taskPaths(SUCCESS) == [':helloWorld']
     }
 
@@ -125,7 +126,7 @@ $expectedOutput"""
 
     @InspectsExecutedTasks
     @InspectsBuildOutput
-    def "exposes result with build is expected to succeed but fails "() {
+    def "exposes result with build is expected to succeed but fails"() {
         given:
         buildScript """
             task helloWorld {
@@ -158,13 +159,13 @@ Run with --stacktrace option to get the stack trace. Run with --info or --debug 
 BUILD FAILED"""
         String expectedMessage = """Unexpected build execution failure in ${testDirectory.canonicalPath} with arguments ${runner.arguments}
 
-Output:
-$expectedOutput"""
+Output:"""
 
-        normalize(t.message).startsWith(expectedMessage)
+        def normalizedMessage = normalize(t.message)
+        normalizedMessage.matches(expectedMessage)
+        normalizedMessage.contains(expectedOutput)
         def result = t.buildResult
-        normalize(result.output).startsWith(expectedOutput)
+        normalize(result.output.trim()).contains(expectedOutput)
         result.taskPaths(FAILED) == [':helloWorld']
     }
-
 }
