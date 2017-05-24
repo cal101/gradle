@@ -41,6 +41,7 @@ import java.util.Collection;
  *         reportsDir = file("$project.buildDir/findbugsReports")
  *         effort = "max"
  *         reportLevel = "high"
+ *         quiet = true
  *         visitors = ["FindSqlInjection", "SwitchFallthrough"]
  *         omitVisitors = ["FindNonShortCircuit"]
  *         includeFilter = file("$rootProject.projectDir/config/findbugs/includeFilter.xml")
@@ -57,6 +58,7 @@ public class FindBugsExtension extends CodeQualityExtension {
 
     private String effort;
     private String reportLevel;
+    private boolean quiet;
     private Collection<String> visitors;
     private Collection<String> omitVisitors;
     private TextResource includeFilterConfig;
@@ -104,6 +106,26 @@ public class FindBugsExtension extends CodeQualityExtension {
      */
     public void setReportLevel(String reportLevel) {
         this.reportLevel = reportLevel;
+    }
+
+    /**
+     * If quiet mode is set the "-quiet" argument is passed to findbugs and
+     * progress reports are disabled.
+     *
+     * Example: quiet = true
+     */
+    public boolean isQuiet() {
+        return quiet;
+    }
+
+    /**
+     * If quiet mode is set the "-quiet" argument is passed to findbugs and
+     * progress reports are disabled.
+     *
+     * Example: quiet = true
+     */
+    public void setQuiet(boolean quiet) {
+        this.quiet = quiet;
     }
 
     /**

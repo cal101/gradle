@@ -117,6 +117,12 @@ public class FindBugsPlugin extends AbstractCodeQualityPlugin<FindBugs> {
                 return extension.getReportLevel();
             }
         });
+        taskMapping.map("quiet", new Callable<Boolean>() {
+            @Override
+            public Boolean call() {
+                return extension.isQuiet();
+            }
+        });
         taskMapping.map("visitors", new Callable<Collection<String>>() {
             @Override
             public Collection<String> call() {

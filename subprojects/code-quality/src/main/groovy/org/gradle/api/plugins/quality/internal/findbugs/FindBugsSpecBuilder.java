@@ -43,6 +43,7 @@ public class FindBugsSpecBuilder {
     private String effort;
     private String reportLevel;
     private String maxHeapSize;
+    private boolean quiet;
     private Collection<String> visitors;
     private Collection<String> omitVisitors;
     private File excludeFilter;
@@ -97,6 +98,11 @@ public class FindBugsSpecBuilder {
 
     public FindBugsSpecBuilder withMaxHeapSize(String maxHeapSize) {
         this.maxHeapSize = maxHeapSize;
+        return this;
+    }
+
+    public FindBugsSpecBuilder withQuiet(boolean quiet) {
+        this.quiet = quiet;
         return this;
     }
 
@@ -157,7 +163,9 @@ public class FindBugsSpecBuilder {
         args.add(pluginsList==null ? "" : pluginsList.getAsPath());
         args.add("-sortByClass");
         args.add("-timestampNow");
-        args.add("-progress");
+        if (!quiet) {
+            args.add("-progress");
+        }
 
         if (reports != null && !reports.getEnabled().isEmpty()) {
             if (reports.getEnabled().size() == 1) {
@@ -204,6 +212,10 @@ public class FindBugsSpecBuilder {
 
         if (has(reportLevel)) {
             args.add(String.format("-%s", reportLevel));
+        }
+
+        if (quiet) {
+            args.add("-quiet");
         }
 
         if (has(visitors)) {

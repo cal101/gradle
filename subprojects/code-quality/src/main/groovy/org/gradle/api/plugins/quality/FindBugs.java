@@ -84,6 +84,8 @@ public class FindBugs extends SourceTask implements VerificationTask, Reporting<
 
     private String maxHeapSize;
 
+    private boolean quiet;
+
     private Collection<String> visitors = new ArrayList<String>();
 
     private Collection<String> omitVisitors = new ArrayList<String>();
@@ -244,6 +246,7 @@ public class FindBugs extends SourceTask implements VerificationTask, Reporting<
             .withDebugging(getLogger().isDebugEnabled())
             .withEffort(getEffort())
             .withReportLevel(getReportLevel())
+            .withQuiet(isQuiet())
             .withMaxHeapSize(getMaxHeapSize())
             .withVisitors(getVisitors())
             .withOmitVisitors(getOmitVisitors())
@@ -450,6 +453,25 @@ public class FindBugs extends SourceTask implements VerificationTask, Reporting<
      */
     public void setMaxHeapSize(String maxHeapSize) {
         this.maxHeapSize = maxHeapSize;
+    }
+
+    /**
+     * Quiet mode enabled?
+     *
+     * Suppresses findbugs "-progress" argument and adds "-quiet" argument.
+     */
+    @Input
+    @Optional
+    public boolean isQuiet() {
+        return quiet;
+    }
+
+    /**
+     * Enable quiet mode to suppress findbugs "-progress" argument and add
+     * "-quiet" argument.
+     */
+    public void setQuiet(boolean quiet) {
+        this.quiet = quiet;
     }
 
     /**

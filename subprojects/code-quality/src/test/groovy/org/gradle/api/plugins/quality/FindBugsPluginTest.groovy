@@ -53,6 +53,7 @@ class FindBugsPluginTest extends AbstractProjectBuilderSpec {
         !extension.ignoreFailures
         extension.effort == null
         extension.reportLevel == null
+        !extension.quiet
         extension.visitors == null
         extension.omitVisitors == null
         extension.includeFilterConfig == null
@@ -88,6 +89,7 @@ class FindBugsPluginTest extends AbstractProjectBuilderSpec {
             reports.xml.destination == project.file("build/reports/findbugs/${sourceSet.name}.xml")
             !ignoreFailures
             effort == null
+            !quiet
             reportLevel == null
             visitors == null
             omitVisitors == null
@@ -116,6 +118,7 @@ class FindBugsPluginTest extends AbstractProjectBuilderSpec {
             !ignoreFailures
             effort == null
             reportLevel == null
+            !quiet
             visitors == null
             omitVisitors == null
             excludeFilterConfig == null
@@ -154,6 +157,7 @@ class FindBugsPluginTest extends AbstractProjectBuilderSpec {
             ignoreFailures = true
             effort = 'min'
             reportLevel = 'high'
+            quiet = true
             visitors = ['org.gradle.Class']
             omitVisitors = ['org.gradle.Interface']
             includeFilter = new File("include.txt")
@@ -181,6 +185,7 @@ class FindBugsPluginTest extends AbstractProjectBuilderSpec {
             ignoreFailures
             effort == 'min'
             reportLevel == 'high'
+            quiet
             visitors == ['org.gradle.Class']
             omitVisitors == ['org.gradle.Interface']
             includeFilterConfig.inputFiles.singleFile == project.file("include.txt")
@@ -200,6 +205,7 @@ class FindBugsPluginTest extends AbstractProjectBuilderSpec {
             ignoreFailures = true
             effort = 'min'
             reportLevel = 'high'
+            quiet = true
             visitors = ['org.gradle.Class']
             omitVisitors = ['org.gradle.Interface']
             includeFilterConfig = project.resources.text.fromFile("include.txt")
@@ -220,6 +226,7 @@ class FindBugsPluginTest extends AbstractProjectBuilderSpec {
             ignoreFailures
             effort == 'min'
             reportLevel == 'high'
+            quiet
             visitors == ['org.gradle.Class']
             omitVisitors == ['org.gradle.Interface']
             includeFilterConfig.inputFiles.singleFile == project.file("include.txt")
